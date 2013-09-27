@@ -6,6 +6,7 @@ import java.util.Collections;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -159,24 +160,54 @@ public class CustomGalleryActivity extends Activity {
 		ArrayList<CustomGallery> galleryList = new ArrayList<CustomGallery>();
 
 		try {
-			final String[] columns = { MediaStore.Images.Media.DATA,
-					MediaStore.Images.Media._ID };
-			final String orderBy = MediaStore.Images.Media._ID;
+			final String[] columns = {
+					MediaStore.Images.Thumbnails._ID,
+					MediaStore.Images.Thumbnails.DATA,
+					MediaStore.Images.Thumbnails.IMAGE_ID
+			};
+			final String orderBy = MediaStore.Images.Thumbnails._ID;
 
-			@SuppressWarnings("deprecation")
-			Cursor imagecursor = managedQuery(
-					MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns,
+			Cursor imagecursor = getContentResolver().query(
+					MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, columns,
 					null, null, orderBy);
-			if (imagecursor != null && imagecursor.getCount() > 0) {
-
-				while (imagecursor.moveToNext()) {
-					CustomGallery item = new CustomGallery();
-
-					int dataColumnIndex = imagecursor
-							.getColumnIndex(MediaStore.Images.Media.DATA);
-
-					item.sdcardPath = imagecursor.getString(dataColumnIndex);
-					galleryList.add(item);
+			try {
+				if (imagecursor != null && imagecursor.getCount() > 0) {
+	
+					while (imagecursor.moveToNext()) {
+						CustomGallery item = new CustomGallery();
+	
+						int dataColumnIndex = imagecursor.getColumnIndex(MediaStore.Images.Thumbnails.DATA);
+						int imageIdIndex = imagecursor.getColumnIndex(MediaStore.Images.Thumbnails.IMAGE_ID);
+	
+						item.thumbnailPath = imagecursor.getString(dataColumnIndex);
+						
+						final String[] originalImageColumns = {
+								MediaStore.Images.Media._ID,
+								MediaStore.Images.Media.DATA
+						};
+						int originalImageId = imagecursor.getInt(imageIdIndex);
+						Cursor originalImageCursor = getContentResolver().query(
+								Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(originalImageId)),
+								originalImageColumns, null, null, null);
+						try {
+							if (originalImageCursor != null) {
+								int origDataColumnIndex = originalImageCursor.getColumnIndex(MediaStore.Images.Media.DATA);
+								if (originalImageCursor.moveToFirst()) {
+									item.sdcardPath = originalImageCursor.getString(origDataColumnIndex);
+								}
+							}
+						} finally {
+							if (originalImageCursor != null) {
+								originalImageCursor.close();
+							}
+						}
+						
+						galleryList.add(item);
+					}
+				}
+			} finally {
+				if (imagecursor != null) {
+					imagecursor.close();
 				}
 			}
 		} catch (Exception e) {

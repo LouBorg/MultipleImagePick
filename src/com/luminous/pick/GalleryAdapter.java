@@ -146,8 +146,7 @@ public class GalleryAdapter extends BaseAdapter {
 
 		try {
             holder.imgQueue.setImageResource(R.drawable.no_media);
-			imageLoader.displayImage("file://" + data.get(position).sdcardPath,
-					holder.imgQueue);
+			imageLoader.displayImage("file://" + data.get(position).thumbnailPath, holder.imgQueue);
 
 			if (isActionMultiplePick) {
 
