@@ -1,5 +1,8 @@
 package com.luminous.pick;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
@@ -8,21 +11,18 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
+
 import com.nostra13.universalimageloader.cache.memory.impl.WeakMemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
-
-import java.util.ArrayList;
-import java.util.Collections;
 
 public class CustomGalleryActivity extends Activity {
 
@@ -52,11 +52,13 @@ public class CustomGalleryActivity extends Activity {
 
     private void initImageLoader() {
         DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-                .cacheOnDisc().imageScaleType(ImageScaleType.EXACTLY_STRETCHED)
-                .bitmapConfig(Bitmap.Config.RGB_565).build();
-        ImageLoaderConfiguration.Builder builder = new ImageLoaderConfiguration.Builder(
-                this).defaultDisplayImageOptions(defaultOptions).memoryCache(
-                new WeakMemoryCache());
+                .cacheOnDisc(true)
+                .imageScaleType(ImageScaleType.EXACTLY_STRETCHED)
+                .bitmapConfig(Bitmap.Config.RGB_565)
+                .build();
+        ImageLoaderConfiguration.Builder builder = new ImageLoaderConfiguration.Builder(this)
+        		.defaultDisplayImageOptions(defaultOptions)
+        		.memoryCache(new WeakMemoryCache());
 
         ImageLoaderConfiguration config = builder.build();
         imageLoader = ImageLoader.getInstance();
