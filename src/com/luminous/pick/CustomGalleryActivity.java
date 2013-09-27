@@ -6,7 +6,6 @@ import java.util.Collections;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -18,11 +17,9 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 
-import com.nostra13.universalimageloader.cache.memory.impl.WeakMemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 
 public class CustomGalleryActivity extends Activity {
 
@@ -52,15 +49,16 @@ public class CustomGalleryActivity extends Activity {
 
     private void initImageLoader() {
         DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-                .cacheOnDisc(true)
-                .imageScaleType(ImageScaleType.EXACTLY_STRETCHED)
-                .bitmapConfig(Bitmap.Config.RGB_565)
+                .cacheInMemory(true)
                 .build();
-        ImageLoaderConfiguration.Builder builder = new ImageLoaderConfiguration.Builder(this)
+        
+        int width = getResources().getDimensionPixelSize(R.dimen.photo_width);
+        int height = getResources().getDimensionPixelSize(R.dimen.photo_height);
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
         		.defaultDisplayImageOptions(defaultOptions)
-        		.memoryCache(new WeakMemoryCache());
+        		.memoryCacheExtraOptions(width, height)
+        		.build();
 
-        ImageLoaderConfiguration config = builder.build();
         imageLoader = ImageLoader.getInstance();
         imageLoader.init(config);
     }
