@@ -17,10 +17,6 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-
 public class CustomGalleryActivity extends Activity {
 
 	GridView gridGallery;
@@ -31,7 +27,6 @@ public class CustomGalleryActivity extends Activity {
 	Button btnGalleryOk;
 
 	String action;
-    private ImageLoader imageLoader;
 
     @Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -43,32 +38,15 @@ public class CustomGalleryActivity extends Activity {
 		if (action == null) {
 			finish();
 		}
-        initImageLoader();
 		init();
 	}
-
-    private void initImageLoader() {
-        DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-                .cacheInMemory(true)
-                .build();
-        
-        int width = getResources().getDimensionPixelSize(R.dimen.photo_width);
-        int height = getResources().getDimensionPixelSize(R.dimen.photo_height);
-        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
-        		.defaultDisplayImageOptions(defaultOptions)
-        		.memoryCacheExtraOptions(width, height)
-        		.build();
-
-        imageLoader = ImageLoader.getInstance();
-        imageLoader.init(config);
-    }
 
 	private void init() {
 
 		handler = new Handler();
 		gridGallery = (GridView) findViewById(R.id.gridGallery);
 		gridGallery.setFastScrollEnabled(true);
-		adapter = new GalleryAdapter(getApplicationContext(), imageLoader);
+		adapter = new GalleryAdapter(getApplicationContext());
 
 		if (action.equalsIgnoreCase(Action.ACTION_MULTIPLE_PICK)) {
 
@@ -177,28 +155,8 @@ public class CustomGalleryActivity extends Activity {
 						int idIndex = imagecursor.getColumnIndex(MediaStore.Images.Media._ID);
 						int dataColumnIndex = imagecursor.getColumnIndex(MediaStore.Images.Media.DATA);
 	
+						item.imageId = imagecursor.getLong(idIndex);
 						item.sdcardPath = imagecursor.getString(dataColumnIndex);
-						
-						final String[] thumbnailColumns = {
-								MediaStore.Images.Thumbnails._ID,
-								MediaStore.Images.Thumbnails.DATA
-						};
-						int originalImageId = imagecursor.getInt(idIndex);
-						Cursor thumbnailCursor = MediaStore.Images.Thumbnails.queryMiniThumbnail(
-								getContentResolver(), originalImageId, MediaStore.Images.Thumbnails.MINI_KIND, thumbnailColumns
-						);
-						try {
-							if (thumbnailCursor != null) {
-								int thumbnailDataColumnIndex = thumbnailCursor.getColumnIndex(MediaStore.Images.Thumbnails.DATA);
-								if (thumbnailCursor.moveToFirst()) {
-									item.thumbnailPath = thumbnailCursor.getString(thumbnailDataColumnIndex);
-								}
-							}
-						} finally {
-							if (thumbnailCursor != null) {
-								thumbnailCursor.close();
-							}
-						}
 						
 						galleryList.add(item);
 					}

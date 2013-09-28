@@ -3,7 +3,7 @@ package com.luminous.pick;
 public class CustomGallery {
 
 	public String sdcardPath;
-	public String thumbnailPath;
+	public long imageId;
 	public boolean isSeleted = false;
 
 }

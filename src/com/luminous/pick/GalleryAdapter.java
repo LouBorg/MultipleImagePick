@@ -9,23 +9,17 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
-
 public class GalleryAdapter extends BaseAdapter {
 
 	private Context mContext;
 	private LayoutInflater infalter;
 	private ArrayList<CustomGallery> data = new ArrayList<CustomGallery>();
-	ImageLoader imageLoader;
 
 	private boolean isActionMultiplePick;
 
-	public GalleryAdapter(Context c, ImageLoader imageLoader) {
-		infalter = (LayoutInflater) c
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+	public GalleryAdapter(Context c) {
+		infalter = (LayoutInflater) c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mContext = c;
-		this.imageLoader = imageLoader;
-        clearCache();
 	}
 
 	@Override
@@ -145,8 +139,8 @@ public class GalleryAdapter extends BaseAdapter {
         holder.imgQueue.setTag(position);
 
 		try {
-            holder.imgQueue.setImageResource(R.drawable.no_media);
-			imageLoader.displayImage("file://" + data.get(position).thumbnailPath, holder.imgQueue);
+            CustomGallery item = data.get(position);
+            new GetThumbnailTask(mContext, holder.imgQueue).execute(item.imageId);
 
 			if (isActionMultiplePick) {
 
@@ -165,11 +159,6 @@ public class GalleryAdapter extends BaseAdapter {
 	public class ViewHolder {
 		ImageView imgQueue;
 		ImageView imgQueueMultiSelected;
-	}
-
-	public void clearCache() {
-		imageLoader.clearDiscCache();
-		imageLoader.clearMemoryCache();
 	}
 
 	public void clear() {
