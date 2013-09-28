@@ -2,7 +2,10 @@ package com.luminous.pick;
 
 import java.util.ArrayList;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +19,7 @@ public class GalleryAdapter extends BaseAdapter {
 	private ArrayList<CustomGallery> data = new ArrayList<CustomGallery>();
 
 	private boolean isActionMultiplePick;
-
+	
 	public GalleryAdapter(Context c) {
 		infalter = (LayoutInflater) c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mContext = c;
@@ -140,7 +143,15 @@ public class GalleryAdapter extends BaseAdapter {
 
 		try {
             CustomGallery item = data.get(position);
-            new GetThumbnailTask(mContext, holder.imgQueue).execute(item.imageId);
+            if (holder.getThumbnailTask != null) {
+            	holder.getThumbnailTask.cancel(true);
+            }
+            holder.getThumbnailTask = new GetThumbnailTask(mContext, holder.imgQueue);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            	executeOnExecutor(holder.getThumbnailTask, item.imageId);
+            } else {
+            	holder.getThumbnailTask.execute(item.imageId);
+            }
 
 			if (isActionMultiplePick) {
 
@@ -155,10 +166,16 @@ public class GalleryAdapter extends BaseAdapter {
 
 		return convertView;
 	}
+	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private void executeOnExecutor(GetThumbnailTask task, Long... params) {
+		task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
+	}
 
 	public class ViewHolder {
 		ImageView imgQueue;
 		ImageView imgQueueMultiSelected;
+		GetThumbnailTask getThumbnailTask;
 	}
 
 	public void clear() {
