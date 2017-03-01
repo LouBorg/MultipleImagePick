@@ -1,5 +1,6 @@
 package com.luminous.pick;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -7,6 +8,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
@@ -17,6 +19,9 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 
+import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
+import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
+import java.util.Collections;
 public class CustomGalleryActivity extends Activity {
 
 	GridView gridGallery;
@@ -28,7 +33,7 @@ public class CustomGalleryActivity extends Activity {
 
 	String action;
 
-    @Override
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -41,12 +46,42 @@ public class CustomGalleryActivity extends Activity {
 		init();
 	}
 
+	private void initImageLoader() {
+		try {
+			String CACHE_DIR = Environment.getExternalStorageDirectory()
+					.getAbsolutePath() + "/.temp_tmp";
+			new File(CACHE_DIR).mkdirs();
+
+			File cacheDir = StorageUtils.getOwnCacheDirectory(getBaseContext(),
+					CACHE_DIR);
+
+			DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+					.cacheOnDisc(true).imageScaleType(ImageScaleType.EXACTLY)
+					.bitmapConfig(Bitmap.Config.RGB_565).build();
+			ImageLoaderConfiguration.Builder builder = new ImageLoaderConfiguration.Builder(
+					getBaseContext())
+					.defaultDisplayImageOptions(defaultOptions)
+					.discCache(new UnlimitedDiscCache(cacheDir))
+					.memoryCache(new WeakMemoryCache());
+
+			ImageLoaderConfiguration config = builder.build();
+			imageLoader = ImageLoader.getInstance();
+			imageLoader.init(config);
+
+		} catch (Exception e) {
+
+		}
+	}
+
 	private void init() {
 
 		handler = new Handler();
 		gridGallery = (GridView) findViewById(R.id.gridGallery);
 		gridGallery.setFastScrollEnabled(true);
-		adapter = new GalleryAdapter(getApplicationContext());
+		adapter = new GalleryAdapter(getApplicationContext(), imageLoader);
+		PauseOnScrollListener listener = new PauseOnScrollListener(imageLoader,
+				true, true);
+		gridGallery.setOnScrollListener(listener);
 
 		if (action.equalsIgnoreCase(Action.ACTION_MULTIPLE_PICK)) {
 
@@ -143,7 +178,8 @@ public class CustomGalleryActivity extends Activity {
 			};
 			final String orderBy = MediaStore.Images.Media._ID;
 
-			Cursor imagecursor = getContentResolver().query(
+			@SuppressWarnings("deprecation")
+			Cursor imagecursor = managedQuery(
 					MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns,
 					null, null, orderBy);
 			try {
@@ -157,7 +193,6 @@ public class CustomGalleryActivity extends Activity {
 	
 						item.imageId = imagecursor.getLong(idIndex);
 						item.sdcardPath = imagecursor.getString(dataColumnIndex);
-						
 						galleryList.add(item);
 					}
 				}
@@ -170,9 +205,9 @@ public class CustomGalleryActivity extends Activity {
 			e.printStackTrace();
 		}
 
-        // show newest photo at beginning of the list
+		// show newest photo at beginning of the list
 		Collections.reverse(galleryList);
-        return galleryList;
+		return galleryList;
 	}
 
 }

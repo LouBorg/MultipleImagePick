@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 public class GalleryAdapter extends BaseAdapter {
 
 	private Context mContext;
@@ -23,6 +24,7 @@ public class GalleryAdapter extends BaseAdapter {
 	public GalleryAdapter(Context c) {
 		infalter = (LayoutInflater) c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mContext = c;
+     	this.imageLoader = imageLoader;
 	}
 
 	@Override
@@ -111,13 +113,14 @@ public class GalleryAdapter extends BaseAdapter {
 			data.get(position).isSeleted = true;
 		}
 
-        ((ViewHolder) v.getTag()).imgQueueMultiSelected.setSelected(data.get(position).isSeleted);
+		((ViewHolder) v.getTag()).imgQueueMultiSelected.setSelected(data
+				.get(position).isSeleted);
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 
-		ViewHolder holder;
+		final ViewHolder holder;
 		if (convertView == null) {
 
 			convertView = infalter.inflate(R.layout.gallery_item, null);
@@ -139,19 +142,19 @@ public class GalleryAdapter extends BaseAdapter {
 		} else {
 			holder = (ViewHolder) convertView.getTag();
 		}
-        holder.imgQueue.setTag(position);
+		holder.imgQueue.setTag(position);
 
 		try {
-            CustomGallery item = data.get(position);
-            if (holder.getThumbnailTask != null) {
-            	holder.getThumbnailTask.cancel(true);
-            }
-            holder.getThumbnailTask = new GetThumbnailTask(mContext, holder.imgQueue);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            	executeOnExecutor(holder.getThumbnailTask, item.imageId);
-            } else {
-            	holder.getThumbnailTask.execute(item.imageId);
-            }
+
+			imageLoader.displayImage("file://" + data.get(position).sdcardPath,
+					holder.imgQueue, new SimpleImageLoadingListener() {
+						@Override
+						public void onLoadingStarted(String imageUri, View view) {
+							holder.imgQueue
+									.setImageResource(R.drawable.no_media);
+							super.onLoadingStarted(imageUri, view);
+						}
+					});
 
 			if (isActionMultiplePick) {
 
@@ -175,7 +178,11 @@ public class GalleryAdapter extends BaseAdapter {
 	public class ViewHolder {
 		ImageView imgQueue;
 		ImageView imgQueueMultiSelected;
-		GetThumbnailTask getThumbnailTask;
+	}
+
+	public void clearCache() {
+		imageLoader.clearDiscCache();
+		imageLoader.clearMemoryCache();
 	}
 
 	public void clear() {
