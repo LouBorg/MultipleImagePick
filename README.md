@@ -1,5 +1,9 @@
 # Smart Gallery with Single and Multiple image pick action.
 [![](https://jitpack.io/v/thijsk/MultipleImagePick.svg)](https://jitpack.io/#thijsk/MultipleImagePick)
+## MultipleImagePick
+
+[![Release](https://jitpack.io/v/thijsk/MultipleImagePick.svg)]
+(https://jitpack.io/#thijsk/MultipleImagePick)
 
 ## Features
  * luminous.ACTION_PICK for choosing single image.
