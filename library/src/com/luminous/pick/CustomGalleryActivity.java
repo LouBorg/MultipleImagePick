@@ -7,6 +7,7 @@ import java.util.Collections;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -19,9 +20,15 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 
-import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
-import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
-import java.util.Collections;
+import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
+import com.nostra13.universalimageloader.cache.memory.impl.WeakMemoryCache;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
+import com.nostra13.universalimageloader.utils.StorageUtils;
+
 public class CustomGalleryActivity extends Activity {
 
 	GridView gridGallery;
@@ -30,6 +37,8 @@ public class CustomGalleryActivity extends Activity {
 
 	ImageView imgNoMedia;
 	Button btnGalleryOk;
+
+	ImageLoader imageLoader;
 
 	String action;
 
@@ -61,7 +70,7 @@ public class CustomGalleryActivity extends Activity {
 			ImageLoaderConfiguration.Builder builder = new ImageLoaderConfiguration.Builder(
 					getBaseContext())
 					.defaultDisplayImageOptions(defaultOptions)
-					.discCache(new UnlimitedDiscCache(cacheDir))
+					.discCache(new UnlimitedDiskCache(cacheDir))
 					.memoryCache(new WeakMemoryCache());
 
 			ImageLoaderConfiguration config = builder.build();

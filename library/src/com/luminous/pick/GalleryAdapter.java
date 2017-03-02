@@ -12,16 +12,19 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
-import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+
 public class GalleryAdapter extends BaseAdapter {
 
 	private Context mContext;
 	private LayoutInflater infalter;
 	private ArrayList<CustomGallery> data = new ArrayList<CustomGallery>();
 
+    private ImageLoader imageLoader;
 	private boolean isActionMultiplePick;
 	
-	public GalleryAdapter(Context c) {
+	public GalleryAdapter(Context c, ImageLoader imageLoader) {
 		infalter = (LayoutInflater) c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mContext = c;
      	this.imageLoader = imageLoader;
