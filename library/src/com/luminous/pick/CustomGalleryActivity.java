@@ -52,6 +52,7 @@ public class CustomGalleryActivity extends Activity {
 		if (action == null) {
 			finish();
 		}
+		initImageLoader();
 		init();
 	}
 
